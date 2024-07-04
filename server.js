@@ -17,18 +17,22 @@ app.use(cors());
 app.use(morgan("dev"));
 app.use(
   session({
-    key: "user_sid",
-    secret: "someRandomStuff",
+    key: "user_id",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      expires: "100000",
+      expires: 100000,
     },
   })
 );
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+//Import the routes
+const userRoute = require("./routes/userRoutes.js");
+const hospitalRoute = require("./routes/hospitalRoutes.js");
 
 //SessionChecker a middleware function
 const SessionChecker = (req, res, next) => {
@@ -39,9 +43,11 @@ const SessionChecker = (req, res, next) => {
 };
 
 // Routes
-app.get("/", (req, res) => {
+app.get("/api", (req, res) => {
   res.send("Hello, world!");
 });
+app.use("/api/user", userRoute);
+app.use("/api/hospital", hospitalRoute);
 
 // Example API route
 app.get("/api/example", (req, res) => {
