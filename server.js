@@ -5,15 +5,21 @@ const bodyParser = require("body-parser");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 
-require("dotenv").config();
+//Create an express application
 const app = express();
+
+//Use these env variables through out the project
+require("dotenv").config();
 const port = process.env.PORT || 3000;
 
-//Import the requred files
+//Configure the databse
 require("./db.config");
 
-// Middleware
-app.use(cors());
+// Middlewares used for smooth experience
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true,
+}));
 app.use(morgan("dev"));
 app.use(
   session({
@@ -22,7 +28,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      expires: 100000,
+      maxAge: 100000,
+      httpOnly: true,
+      secure: false,
     },
   })
 );
@@ -32,29 +40,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //Import the routes
 const userRoute = require("./routes/userRoutes.js");
+const rideRoute = require("./routes/rideRoutes.js");
 const hospitalRoute = require("./routes/hospitalRoutes.js");
 
-//SessionChecker a middleware function
-const SessionChecker = (req, res, next) => {
-  if (req.session.user && req.cookie) {
-  } else {
-    next();
-  }
-};
+//Handleing various routes
+app.use("/life-saviour-api/user", userRoute);
+app.use("/life-saviour-api/ride", rideRoute);
+app.use("/life-saviour-api/hospital", hospitalRoute);
 
-// Routes
-app.get("/api", (req, res) => {
-  res.send("Hello, world!");
-});
-app.use("/api/user", userRoute);
-app.use("/api/hospital", hospitalRoute);
-
-// Example API route
-app.get("/api/example", (req, res) => {
-  res.json({ message: "This is an example API endpoint" });
-});
-
-// Start the server
+//Start the server
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on port number: ${port}.`);
 });

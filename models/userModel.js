@@ -33,9 +33,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["active", "sleep"],
   },
+  accountStatus: {
+    type: String,
+    enum: ["verified", "notVerified"],
+    default: "notVerified",
+  },
   hospitalId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref : "Hospital"
+    ref: "Hospital",
   },
   previousRides: [{ type: mongoose.Schema.Types.ObjectId, ref: "Request" }],
   createdAt: {
@@ -59,11 +64,11 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.methods.comparePassword = function (plainText, callBack) {
-    bcrypt.compare(plainText, this.password, (err, isMatch) => {
-      if (err) return callBack(err);
-      callBack(null, isMatch);
-    });
-  };
+  bcrypt.compare(plainText, this.password, (err, isMatch) => {
+    if (err) return callBack(err);
+    callBack(null, isMatch);
+  });
+};
 
 const User = mongoose.model("User", userSchema);
 
